@@ -1,0 +1,110 @@
+import { useMemo, useState } from "react";
+import { api, friendlyMessage, isApiError } from "../api/client";
+import type { CaptureUploadResponse, Point, RectifyResponse } from "../api/types";
+import { useApp } from "../AppContext";
+import QuadEditor from "../components/QuadEditor";
+import QualityWarnings from "../components/QualityWarnings";
+import { btn, msg, sectionSub, sectionTitle, spinnerInline } from "../ui";
+
+const FULL_FRAME: Point[] = [
+  [0.05, 0.05],
+  [0.95, 0.05],
+  [0.95, 0.95],
+  [0.05, 0.95],
+];
+
+export interface CornerEditScreenProps {
+  upload: CaptureUploadResponse;
+  onBack: () => void;
+  onRectified: (rectify: RectifyResponse) => void;
+}
+
+export default function CornerEditScreen({
+  upload,
+  onBack,
+  onRectified,
+}: CornerEditScreenProps) {
+  const { config } = useApp();
+
+  const initialQuad = useMemo<Point[]>(
+    () => upload.detection.quad_norm ?? FULL_FRAME,
+    [upload.detection.quad_norm]
+  );
+
+  const [quad, setQuad] = useState<Point[]>(initialQuad);
+  const [userAdjusted, setUserAdjusted] = useState(false);
+  const [rectifying, setRectifying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const confWarn = config?.detection.confidence_warn ?? 0.55;
+  const det = upload.detection;
+
+  async function confirm() {
+    setRectifying(true);
+    setError(null);
+    try {
+      const rect = await api.rectify(
+        upload.capture_id,
+        quad,
+        userAdjusted ? "manual" : "auto"
+      );
+      onRectified(rect);
+    } catch (e) {
+      setError(isApiError(e) ? friendlyMessage(e.code, e.message) : String(e));
+    } finally {
+      setRectifying(false);
+    }
+  }
+
+  return (
+    <div>
+      <h1 className={`${sectionTitle} mt-0 mx-0 mb-1`}>Adjust corners</h1>
+      <p className={`${sectionSub} mt-0 mx-0`}>
+        Drag the four numbered handles onto the paper corners.
+      </p>
+
+      {!det.success ? (
+        <div className={msg.warn}>
+          Couldn't find the paper edges — drag the corners yourself.
+        </div>
+      ) : det.confidence > 0 && det.confidence < confWarn ? (
+        <div className={msg.warn}>
+          Automatic detection was unsure — check the corners.
+        </div>
+      ) : null}
+
+      <QualityWarnings quality={upload.quality} />
+
+      <QuadEditor
+        imageUrl={upload.files.preview}
+        initialQuad={initialQuad}
+        onChange={(q, adjusted) => {
+          setQuad(q);
+          setUserAdjusted(adjusted);
+        }}
+      />
+
+      {error ? <div className={`${msg.error} mt-3`}>{error}</div> : null}
+
+      <div className="flex justify-end gap-3 mt-3">
+        <button type="button" className={btn.ghost} onClick={onBack} disabled={rectifying}>
+          Back
+        </button>
+        <button
+          type="button"
+          className={btn.primary}
+          onClick={confirm}
+          disabled={rectifying}
+        >
+          {rectifying ? (
+            <>
+              <span className={spinnerInline} /> Processing…
+            </>
+          ) : (
+            "Confirm corners"
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}

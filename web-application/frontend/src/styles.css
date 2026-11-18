@@ -1,0 +1,240 @@
+@import "tailwindcss";
+
+/* Preserve the existing touch/tap hover behavior. */
+@custom-variant hover (&:hover);
+
+@theme static {
+  --color-*: initial;
+  --radius-*: initial;
+  --breakpoint-*: initial;
+
+  --spacing: 4px;
+
+  --color-canvas: #fafafa;
+  --color-canvas-soft: #f4f5f6;
+  --color-panel: #ffffff;
+  --color-panel-2: #f8f9fa;
+  --color-panel-3: #edf0f2;
+  --color-panel-hover: #e2e6ea;
+  --color-line: #e2e8f0;
+  --color-line-strong: #cbd5e1;
+  --color-ink: #172724;
+  --color-ink-muted: #536b65;
+  --color-ink-faint: #61746f;
+  --color-accent: #147d70;
+  --color-accent-strong: #0b655c;
+  --color-indigo: #376f68;
+  --color-poor: #b4232f;
+  --color-emergency: #b4232f;
+
+  --color-tier-green: #1f9254;
+  --color-tier-green-text: #146b3d;
+  --color-tier-green-wash: #e5f5ec;
+  --color-tier-yellow: #e0a800;
+  --color-tier-yellow-text: #7a5300;
+  --color-tier-yellow-wash: #fdf6dc;
+  --color-tier-orange: #e25d10;
+  --color-tier-orange-text: #b2400a;
+  --color-tier-orange-wash: #fdeee3;
+  --color-tier-red: #c81e2c;
+  --color-tier-red-text: #a3161f;
+  --color-tier-red-wash: #fce8ea;
+
+  --color-context: #3566ad;
+  --color-context-text: #24497f;
+  --color-context-wash: #edf3fb;
+  --color-context-line: color-mix(in srgb, var(--color-context) 35%, var(--color-line));
+  --color-context-line-strong: color-mix(in srgb, var(--color-context) 40%, var(--color-line));
+  --color-critical-line: color-mix(in srgb, var(--color-tier-red) 55%, var(--color-line));
+
+  --color-positive-wash: #e7edf2;
+  --color-positive-ink: #34495a;
+  --color-negative-wash: #f1f3f5;
+  --color-negative-ink: #5a6a75;
+  --color-track: #e2e8f0;
+  --color-matte-red: #a94442;
+  --color-matte-red-hover: #923a38;
+  --color-matte-green: #3d7f57;
+  --color-matte-green-hover: #336b4a;
+  --color-matte-blue: #3b6593;
+  --color-matte-blue-hover: #32577f;
+
+  --color-error-wash: #fff1f2;
+  --color-error-line: #fecdd3;
+  --color-error-ink: #9f1d2d;
+  --color-warn-wash: #fff8eb;
+  --color-warn-line: #f0ca8a;
+  --color-warn-ink: #85500b;
+  --color-info-wash: #edf8f6;
+  --color-info-line: #a9d7cf;
+  --color-info-ink: #155f57;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --shadow-card: 0 1px 2px rgba(23, 39, 36, 0.04), 0 6px 20px -10px rgba(23, 39, 36, 0.12);
+  --shadow-dialog: 0 10px 30px rgba(23, 39, 36, 0.1);
+  --shadow-menu: 0 10px 28px rgba(0, 0, 0, 0.1);
+  --shadow-modal: 0 16px 40px rgba(0, 0, 0, 0.25);
+  --font-sans: "Roboto", system-ui, -apple-system, "Segoe UI", Helvetica, Arial,
+    sans-serif;
+
+  /* max-* uses width < breakpoint; +1px retains the old inclusive maxima. */
+  --breakpoint-tiny: 381px;
+  --breakpoint-phone: 421px;
+  --breakpoint-compact: 521px;
+  --breakpoint-nav: 561px;
+  --breakpoint-narrow: 601px;
+  --breakpoint-md: 768px;
+  --breakpoint-wide: 900px;
+
+  --animate-spinner: spinner 0.7s linear infinite;
+  --animate-menu-in: menu-fade-in 0.15s ease-out;
+
+  @keyframes spinner {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes menu-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  html {
+    -webkit-tap-highlight-color: revert;
+  }
+  #root {
+    min-height: 100dvh;
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-control);
+    min-height: 44px;
+    padding: 0 18px;
+    background: var(--color-panel-3);
+    color: var(--color-ink);
+    transition: background 0.15s ease, transform 0.05s ease;
+  }
+  button:hover {
+    background: var(--color-panel-hover);
+  }
+  button:active {
+    transform: translateY(1px);
+  }
+  button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="password"],
+  select,
+  textarea {
+    font: inherit;
+    color: var(--color-ink);
+    background: var(--color-panel);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-control);
+    padding: 10px 12px;
+    min-height: 44px;
+    width: 100%;
+  }
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  input[aria-invalid="true"] {
+    border-color: var(--color-poor);
+  }
+  input[aria-invalid="true"]:focus {
+    outline-color: var(--color-poor);
+  }
+}
+
+@page {
+  margin: 14mm 12mm;
+  @top-left {
+    content: "";
+  }
+  @top-center {
+    content: "";
+  }
+  @top-right {
+    content: counter(page);
+    font-family: inherit;
+    font-size: 8pt;
+    color: #555;
+  }
+  @bottom-left {
+    content: "";
+  }
+  @bottom-center {
+    content: "CardioSentry";
+    font-family: inherit;
+    font-size: 8pt;
+    color: #555;
+  }
+  @bottom-right {
+    content: "";
+  }
+}
+
+@layer base {
+  @media print {
+    :root {
+      color-scheme: light;
+    }
+    html,
+    body {
+      background: #fff !important;
+      color: #111;
+      font-size: 11pt;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    button,
+    dialog {
+      display: none !important;
+    }
+    details[data-print-open] > summary {
+      list-style: none !important;
+      cursor: default !important;
+      font-weight: 700 !important;
+    }
+    details[data-print-open] > summary::-webkit-details-marker,
+    details[data-print-open] > summary::marker {
+      display: none !important;
+      content: "" !important;
+    }
+  }
+}

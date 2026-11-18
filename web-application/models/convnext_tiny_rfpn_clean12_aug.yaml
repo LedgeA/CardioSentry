@@ -1,0 +1,68 @@
+schema_version: 1
+id: convnext_tiny_rfpn_clean12_aug
+display_name: "CardioSentry ECG classifier"
+version: "1"
+notes: "Experimental twelve-label ECG image classifier."
+
+weights: weights/convnext_tiny_rfpn_clean12_aug_inference.pt
+expected_sha256: 782cb7a5b5402d708532ac843694627a8e67884f2b9df523c7c011d0bda06e6c
+expected_protocol_fingerprint: 469d583e68ecf099
+
+architecture:
+  module: arch.convnext_v1_rfpn_clean12
+  registry_key: convnext_tiny_rfpn_clean12
+  pretrained: false
+  call_style: tensor
+  views: [[768, 1024]]
+
+labels: [NORM, SB, STACH, LBBB, LQT, AF, AFL, 3AVB, 2AVB, 1AVB, STEMI, STE]
+display_names:
+  NORM: "Normal ECG"
+  SB: "Sinus Bradycardia"
+  STACH: "Sinus Tachycardia"
+  LBBB: "Left Bundle Branch Block"
+  LQT: "Long QT"
+  AF: "Atrial Fibrillation"
+  AFL: "Atrial Flutter"
+  3AVB: "Third-Degree (Complete) AV Block"
+  2AVB: "Second-Degree AV Block"
+  1AVB: "First-Degree AV Block"
+  STEMI: "ST-Elevation Myocardial Infarction"
+  STE: "ST Elevation"
+
+thresholds:
+  source: explicit
+  explicit: [0.9449946880340576, 0.6540113687515259, 0.6601723432540894,
+             0.7905303239822388, 0.6575384140014648, 0.31658050417900085,
+             0.19682618975639343, 0.10970578342676163, 0.637030839920044,
+             0.750552773475647, 0.20689405500888824, 0.2782568037509918]
+
+output:
+  suppressed_labels: []
+
+preprocess:
+  canvas: [1650, 1275]
+  margin_px: 18
+  input_size: [768, 1024]
+  resample: pil_lanczos
+  fit: height_pad
+  match_training_jpeg: false
+  jpeg_quality: 95
+  normalize:
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+
+runtime:
+  device: cpu
+  dtype: float32
+  num_threads: null
+
+explain:
+  enabled: true
+  target_layer: backbone.stages.3
+  header_box: null
+  header_redacted_in_training: false
+
+verify:
+  expected_scores: tests/fixtures/expected_scores_convnext_tiny_rfpn_clean12_aug.json
+  score_tolerance: 2.0e-3
